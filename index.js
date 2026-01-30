@@ -17,7 +17,7 @@ app.listen(port, () => {
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri =
   "mongodb+srv://hobby_hub:WLeOxp80adMTqVxo@darksoul.5bywpqf.mongodb.net/?retryWrites=true&w=majority&appName=DarkSoul";
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -34,7 +34,12 @@ async function run() {
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
 
+    //////////////////////////////////////////  MongoDB Collection Section  ///////////////////////////////////////////////////////
+
     const groupCollection = client.db("hobbyhubDB").collection("groups");
+    const commentCollection = client.db("hobbyhubDB").collection("comments");
+
+    //////////////////////////////////////////  Group Section  ///////////////////////////////////////////////////////
 
     //GET ALL THE GROUPS
     app.get("/groups", async (req, res) => {
@@ -75,11 +80,62 @@ async function run() {
 
     //DELETE A GROUP
     app.delete("/groups/:id", async (req, res) => {
-      const id = req.params.id; 
+      const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await groupCollection.deleteOne(query);
       res.send(result);
     });
+
+    //PATCH A GROUP
+    app.patch("/groups/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedMembers = req.body;
+      const updateDoc = {
+        $set: { members: updatedMembers },
+      };
+      const result = await groupCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    //////////////////////////////////////////  Comment Section  ///////////////////////////////////////////////////////
+
+    //POST A COMMENT
+    app.post("/groups/:groupId/comments", async (req, res) => {
+      const commentData = {
+        ...req.body,
+        groupId: req.params.groupId,
+      };
+
+      const result = await commentCollection.insertOne(commentData);
+      res.send(result);
+    });
+
+    //GET ALL COMMENT (OF THAT GROUP)
+    app.get("/groups/:groupId/comments", async (req, res) => {
+      const result = await commentCollection
+        .find({ groupId: req.params.groupId })
+        .toArray();
+
+      res.send(result);
+    });
+
+    //EDITING/UPDATING OF A COMMENT
+    app.patch("/groups/:groupId/comments/:commentId", async (req, res) => {
+      const { commentId } = req.params;
+      const { editedCommentText, editTime } = req.body;
+      const filter = { _id: new ObjectId(commentId) };
+      const updateDoc = {
+        $set: {
+          comment: editedCommentText,
+          editedAt: editTime,
+        },
+      };
+      const result = await commentCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    
   } finally {
   }
 }
