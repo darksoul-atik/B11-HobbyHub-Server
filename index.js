@@ -45,7 +45,7 @@ const commentCollection = client.db("hobbyhubDB").collection("comments");
 
 // Root route
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hobby Hub Backend is Running wild!");
 });
 
 //////////////////////////////////////////  Group Section  ///////////////////////////////////////////////////////
