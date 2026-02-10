@@ -23,8 +23,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri =
   `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@darksoul.5bywpqf.mongodb.net/?retryWrites=true&w=majority&appName=DarkSoul`;
 
-  // hobby_hub
-  //WLeOxp80adMTqVxo
+
 
 const client = new MongoClient(uri, {
   serverApi: {
